@@ -35,9 +35,11 @@ while game_on:
     # collision with walls
     if snake.head.xcor() > 380 or snake.head.xcor() < -380:
         game_on = False
+        point.high_score_update()
         point.game_over()
     elif snake.head.ycor() > 290 or snake.head.ycor() < -290:
         game_on = False
+        point.high_score_update()
         point.game_over()
 
     # detect collision with snake body
@@ -45,6 +47,7 @@ while game_on:
     for any_snake_body in no_head_body:
         if snake.head.distance(any_snake_body) < 10:
             game_on = False
+            point.high_score_update()
             point.game_over()
 
 screen.exitonclick()
