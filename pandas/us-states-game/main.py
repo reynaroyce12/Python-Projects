@@ -34,10 +34,8 @@ while len(guessed_state) <= 50:
         guessed_number += 1
         guessed_state.append(format_user_input)
 
-    elif user_input == 'exit':
-        for states in states_list:
-            if states not in guessed_state:
-                missed_states.append(states)
+   elif user_input == 'exit':
+        missed_states = [state for state in states_list if state not in guessed_state]
         missed_data = pandas.DataFrame(missed_states)
         missed_data.to_csv("Missed_states.csv")
         break
