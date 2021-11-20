@@ -1,3 +1,4 @@
+import math
 from tkinter import *
 
 WORK_MIN = 25
