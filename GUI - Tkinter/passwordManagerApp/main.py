@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import messagebox
 from random import *
+import json
 import pyperclip
 
 
@@ -12,9 +13,9 @@ def generate_password():
     numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
     symbols = ['!', '#', '$', '%', '&', '(', ')', '*', '+']
 
-    password_letters = [choice(letters) for i in range(randint(1, 20))]
-    password_symbols = [choice(symbols) for i in range(randint(1, 10))]
-    password_numbers = [choice(numbers) for i in range(randint(1, 9))]
+    password_letters = [choice(letters) for _ in range(randint(1, 20))]
+    password_symbols = [choice(symbols) for _ in range(randint(1, 10))]
+    password_numbers = [choice(numbers) for _ in range(randint(1, 9))]
 
     password_list = password_letters + password_symbols + password_numbers
     shuffle(password_list)
@@ -24,31 +25,60 @@ def generate_password():
     pyperclip.copy(password)
 
 
+# ------------------------------- SEARCHING FOR WEBSITE --------------------------
+
+def check_item():
+    website = website_entry.get()
+    try:
+        with open("data.json") as data_file:
+            data = json.load(data_file)
+    except FileNotFoundError:
+        messagebox.showinfo(title="Error", message="No Data File Found.")
+    else:
+        if website in data:
+            email = data[website]["email"]
+            password = data[website]["password"]
+            messagebox.showinfo(title=website, message=f"Email: {email}\nPassword: {password}")
+        else:
+            messagebox.showinfo(title="Error", message=f"No details for {website} exists.")
+
+
 # ---------------------------- SAVING PASSWORD ------------------------------- #
 
 def save_details():
-    website = website_entry.get()
-    email_username = user_name_entry.get()
-    password = password_entry.get()
 
-    if len(website) == 0 or len(email_username) == 0 or len(password) == 0:
+    website = website_entry.get()
+    email = user_name_entry.get()
+    password = password_entry.get()
+    new_data = {
+        website: {
+            "email": email,
+            "password": password,
+        }
+    }
+
+    if len(website) == 0 or len(email) == 0 or len(password) == 0:
         messagebox.showinfo(title="Oops", message="Nothing should be left empty!")
     else:
-        is_ok = messagebox.askokcancel(title="Password Manager",
-                                       message=f"The details entered are email: {email_username}"
-                                               f"\npassword: {password}\nSave this into the file?")
-        if is_ok:
-            with open('deets.txt', mode='a') as dataFile:
-                dataFile.write(f"{website} | email: {email_username} | password: {password}\n")
-                website_entry.delete(0, END)
-                user_name_entry.delete(0, END)
-                password_entry.delete(0, END)
+        try:
+            with open('data.json', 'r') as dataFile:
+                data = json.load(dataFile)
+        except FileNotFoundError:
+            with open('data.json', 'w') as dataFile:
+                json.dump(new_data, dataFile, indent=4)
+        else:
+            data.update(new_data)
+            with open('data.json', 'w') as dataFile:
+                json.dump(data, dataFile, indent=4)
+        finally:
+            website_entry.delete(0, END)
+            user_name_entry.delete(0, END)
+            password_entry.delete(0, END)
 
 
 # ---------------------------- UI SETUP ------------------------------- #
 window = Tk()
 window.title("Password Manager")
-# window.minsize(width=600, height=600)
 window.config(padx=50, pady=50)
 
 canvas = Canvas(width=200, height=200)
@@ -58,10 +88,9 @@ canvas.grid(column=1, row=0)
 
 website_label = Label(text="Website:", font=("Arial", 10, "normal"))
 website_label.grid(column=0, row=1)
-website_entry = Entry(width="35")
+website_entry = Entry(width=20)
 website_entry.focus()
-
-website_entry.grid(column=1, row=1, columnspan=2, sticky="EW")
+website_entry.grid(column=1, row=1, sticky="EW")
 
 user_name = Label(text="Email/Username:", font=("Arial", 10, "normal"))
 user_name.grid(column=0, row=2)
@@ -78,5 +107,8 @@ generate_password_button.grid(column=2, row=3, sticky="EW")
 
 add_button = Button(text="Add", font=("Arial", 10, "normal"), width=35, command=save_details)
 add_button.grid(column=1, row=4, columnspan=2, sticky="EW")
+
+search_button = Button(text="Search", font=("Arial", 10, "normal"), command=check_item)
+search_button.grid(column=2, row=1, sticky="EW")
 
 window.mainloop()
