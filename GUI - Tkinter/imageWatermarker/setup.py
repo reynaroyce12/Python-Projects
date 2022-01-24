@@ -7,10 +7,14 @@ BUTTON_BG = '#D9CAB3'
 
 class Setup:
     def get_image(self):
-        img_path = fr"{self.entry.get()}"
-        marker_obj = Marker(img_path)
-        marker_obj.create_text()
-        marker_obj.show_image()
+        try:
+            img_path = fr"{self.entry.get()}"
+            marker_obj = Marker(img_path)
+            marker_obj.create_text()
+            marker_obj.show_image()
+            self.message.destroy()
+        except:
+            self.message.config(text="Invalid path!")
 
     def handle_click(self, event):
         self.entry.delete(0, END)
@@ -28,9 +32,11 @@ class Setup:
         self.entry.grid(row=2, column=2, columnspan=2, pady=10)
         self.entry.bind("<1>", self.handle_click)
 
-        self.watermark_button = Button(text="Create Watermark", font=('Courier', 10, 'bold'), command=self.get_image, bg=BUTTON_BG)
-        self.watermark_button.grid(row=3, column=2, columnspan=2)
+        self.watermark_button = Button(text="Create Watermark", font=('Courier', 10, 'bold'), command=self.get_image,
+                                       bg=BUTTON_BG)
+        self.watermark_button.grid(row=3, column=2, columnspan=2, pady=15)
+
+        self.message = Label(text="", font=('Courier', 10, 'bold'), bg=BG)
+        self.message.grid(row=4, column=2, columnspan=2)
 
         self.window.mainloop()
-
-
